@@ -1,4 +1,4 @@
 export { Prompt } from './parsers'
-export { Cli } from "./types"
+export { Cli, command, baseCommand, cli } from "./types"
 
 

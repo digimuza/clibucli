@@ -374,8 +374,7 @@ export namespace Prompt {
                 }
                 return Promts({ message: `${message}`, type: 'select', name: 'arg', choices: normalized }).then((q) => {
                     if (!isDefined(q.arg)) {
-                        // tslint:disable-next-line: no-throw
-                        throw new Canceled()
+                        process.exit(1)
                     }
                     return q.arg
                 })

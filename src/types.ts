@@ -77,11 +77,13 @@ export function __command(data: Cli.CommandOptions) {
                             const flag = data.args?.find((q) => {
                                 return q.name.includes(name)
                             })
+                            console.log(name, data.args?.filter((c) => c.kind === 'positional'))
+                            console.log(argv)
                             const value = argv.args.find((c) => {
                                 if (c.type === 'positional') {
                                     return !!flag?.name.includes(c.value)
                                 }
-                                return ensureArray(flag?.name).filter(isDefined).map((q)=> q.replace(/-/gm, '')).includes(c.arg)
+                                return ensureArray(flag?.name).filter(isDefined).map((q) => q.replace(/-/gm, '')).includes(c.arg)
                             })
 
                             if (fn == null) {
@@ -131,13 +133,10 @@ export type MaybePromisor<Input extends any[], Output> =
 
 
 export namespace Cli {
-
-
-    export function parseArgs(cli: boolean, argv: ReadonlyArray<string>): Cli.ParsedArgv {
-        const args = cli ? argv.slice(4) : argv.slice(3)
-        const command = cli ? argv[3] : argv[2]
+    export function parseArgs(argv: ReadonlyArray<string>): Cli.ParsedArgv {
+        const args = argv.slice(3)
+        const command = argv[2]
         return {
-            cli: cli ? argv[2] : undefined,
             command: command,
             args: parseCliArguments(args),
         }
@@ -151,7 +150,6 @@ export namespace Cli {
         const r = iRawArgs
         // tslint:disable-next-line: no-let
         let position = 0
-
         const parseReq = (c: ReadonlyArray<string>, qw: any[]): any => {
             if (c.length === 0) {
                 return qw
@@ -230,7 +228,6 @@ export namespace Cli {
     }[Type]
 
     export interface ParsedArgv {
-        readonly cli: string | undefined,
         readonly command: string
         readonly args: ReadonlyArray<CliArg>
     }
@@ -341,8 +338,7 @@ export function command(name: string, description?: string) {
 }
 
 export async function cli(data: { cliName: string, commands: ReadonlyArray<Cli.Executable<unknown>>, argv?: ReadonlyArray<string> }) {
-    const args = Cli.parseArgs(true, data.argv || process.argv)
-    if (args.cli !== data.cliName) return
+    const args = Cli.parseArgs(data.argv || process.argv)
     const command = data.commands.map((q) => q.setOptions((c) => ({ ...c, cli: data.cliName })))
         .find((c) => c.getOptions().command === args.command)
 
